@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="favicon (1).ico">
+<title>Option Trading Calculator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        min-height: 100vh;
+        background-image: url('bull.jpg'); /* Change the path to your image */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        opacity: 0.95;
+        background-blend-mode:overlay;
+    }
+    .calculator {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        max-width: 300px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    input[type="number"], input[type="text"], select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    .result-info {
+        font-size: 14px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .result {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 10px;
+        max-width: 300px;
+        width: 100%;
+    }
+</style>
+</head>
+<body>
+    <h1 style="color: rgb(41, 253, 3);">Options Trading Calculator </h1>
+<div class="calculator">
+    <h2>Profit/Loss Calculator</h2>
+    <label for="buying">Buying Price:</label>
+    <input type="number" id="buying" placeholder="Enter buying price">
+    <label for="target">Target Price:</label>
+    <input type="number" id="target" placeholder="Enter target price">
+    <label for="stoploss">Stop Loss Price:</label>
+    <input type="number" id="stoploss" placeholder="Enter stop loss price">
+    <button onclick="calculate()">Calculate</button>
+    <div class="result-info">Results calculated based on the given prices</div>
+    <p>Profit Percentage (Target Price): <span id="percentageTarget"></span>%</p>
+    <p>Loss Percentage (Stop Loss Price): <span id="percentageStoploss"></span>%</p>
+    <p style="font-weight: bold; font-size: larger;">Risk to Reward Ratio: <span id="riskRewardRatio"></span></p>
+</div>
+
+<div class="result">
+    <h2>Profit/Loss Calculation Based on Lots</h2>
+    <label for="index">Select Index:</label>
+    <select id="index" onchange="calculateInvestment()">
+        <option value="nifty">Nifty</option>
+        <option value="nifty_financial_services">Fin Nifty</option>
+        <option value="nifty_midcap_select">Midcap Nifty</option>
+        <option value="nifty_bank" selected>Bank Nifty</option>
+        <option value="sensex">Sensex</option>
+        <option value="bankex">Bankex</option>
+    </select>
+    <label for="lots">Number of Lots:</label>
+    <input type="number" id="lots" placeholder="Enter number of lots" value="0" oninput="calculateInvestment()">
+    <p>Invested Amount: ₹<span id="investedAmount"></span></p>
+    <button onclick="calculateLots()">Calculate</button>
+    <p>Profit Amount (Target Price): ₹ <span id="profitAmount"></span></p>
+    <p>Loss Amount (Stop Loss Price): ₹ <span id="lossAmount"></span></p>
+</div>
+
+<script>
+    function calculate() {
+        var buying = parseFloat(document.getElementById('buying').value);
+        var target = parseFloat(document.getElementById('target').value);
+        var stoploss = parseFloat(document.getElementById('stoploss').value);
+
+        if (isNaN(buying) || isNaN(target) || isNaN(stoploss)) {
+            alert('Please enter valid numbers');
+            return;
+        }
+
+        var profitTarget = ((target - buying) / buying) * 100;
+        var lossStoploss = ((buying - stoploss) / buying) * 100;
+
+        document.getElementById('percentageTarget').innerText = profitTarget.toFixed(2);
+        document.getElementById('percentageStoploss').innerText = -lossStoploss.toFixed(2);
+if (lossStoploss === 0) {
+    document.getElementById('riskRewardRatio').innerText = 'Infinity';
+} else {
+    var riskRewardRatio = Math.abs(profitTarget / lossStoploss).toFixed(2);
+    document.getElementById('riskRewardRatio').innerText = riskRewardRatio;
+}
+
+    }
+
+    function calculateInvestment() {
+        var index = document.getElementById('index').value;
+        var lots = parseFloat(document.getElementById('lots').value);
+
+        var lotSize = {
+            'nifty': 25,
+            'nifty_financial_services': 25,
+            'nifty_midcap_select': 50,
+            'nifty_bank': 15,
+            'sensex': 10,
+            'bankex': 15
+        };
+
+        var buyingPrice = parseFloat(document.getElementById('buying').value);
+
+        var investedAmount = buyingPrice * lots * lotSize[index];
+        document.getElementById('investedAmount').innerText = investedAmount.toFixed(2);
+    }
+
+    function calculateLots() {
+        var index = document.getElementById('index').value;
+        var lots = parseFloat(document.getElementById('lots').value);
+
+        if (isNaN(lots)) {
+            alert('Please enter valid number of lots');
+            return;
+        }
+
+        var lotSize = {
+            'nifty': 25,
+            'nifty_financial_services': 25,
+            'nifty_midcap_select': 50,
+            'nifty_bank': 15,
+            'sensex': 10,
+            'bankex': 15
+        };
+
+        var buyingPrice = parseFloat(document.getElementById('buying').value);
+        var targetPrice = parseFloat(document.getElementById('target').value);
+        var stoplossPrice = parseFloat(document.getElementById('stoploss').value);
+
+        if (isNaN(buyingPrice) || isNaN(targetPrice) || isNaN(stoplossPrice)) {
+            alert('Please enter valid buying, target, and stop loss prices');
+            return;
+        }
+
+        var profitAmount = (targetPrice - buyingPrice) * lots * lotSize[index];
+        var lossAmount = (buyingPrice - stoplossPrice) * lots * lotSize[index];
+
+        document.getElementById('profitAmount').innerText = profitAmount.toFixed(2);
+        document.getElementById('lossAmount').innerText = lossAmount.toFixed(2);
+    }
+</script>
+<footer>
+    <p>Created with &#10084 by Kundan Kumar</p>
+</footer>
+
+</body>
+</html>
